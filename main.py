@@ -29,10 +29,8 @@ if "chat_history" not in st.session_state:
 # ----------------------------------------------------
 # 4. STREAMLIT NATIVE AUDIO PROCESSING
 # ----------------------------------------------------
-# We use a standard hidden audio input component to bypass iframe security blocks
-# while maintaining your premium look overlaid on top.
 st.sidebar.title("Audio Controller Bypass")
-audio_file = st.sidebar.audio_input("Record Voice Query Here If Main Button Blocks")
+audio_file = st.sidebar.audio_input("Record Voice Query Here")
 
 if audio_file:
     try:
@@ -95,6 +93,10 @@ for chat in st.session_state.chat_history:
     </div>
     """
 
+# Fix the condition before passing it into f-string to avoid the specifier error
+avatar_visibility = "hidden" if chat_bubbles_html else ""
+log_visibility = "" if chat_bubbles_html else "hidden"
+
 # ----------------------------------------------------
 # 5. AAPKA ORIGINAL PREMIUM CYBERPUNK INTERFACE
 # ----------------------------------------------------
@@ -135,14 +137,8 @@ custom_cyberpunk_ui = f"""
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
             border-radius: 24px;
         }}
-        .state-idle {{ box-shadow: 0 0 30px -5px rgba(148, 163, 184, 0.1); border-color: rgba(148, 163, 184, 0.2); }}
-        .state-listening {{ box-shadow: 0 0 40px -5px rgba(16, 185, 129, 0.35); border-color: var(--neon-emerald) !important; }}
-        .state-thinking {{ box-shadow: 0 0 40px -5px rgba(245, 158, 11, 0.35); border-color: #f59e0b !important; }}
-        .state-speaking {{ box-shadow: 0 0 40px -5px rgba(99, 102, 241, 0.4); border-color: var(--neon-indigo) !important; }}
         ::-webkit-scrollbar {{ width: 6px; }}
         ::-webkit-scrollbar-thumb {{ background: rgba(255, 255, 255, 0.1); border-radius: 99px; }}
-        @keyframes slow-orbit {{ from {{ transform: rotate(0deg); }} to {{ transform: rotate(360deg); }} }}
-        .spin-slow {{ animation: slow-orbit 12s linear infinite; }}
     </style>
 </head>
 <body class="flex p-5 space-x-5">
@@ -156,7 +152,7 @@ custom_cyberpunk_ui = f"""
             <div class="space-y-3 bg-white/5 p-4 rounded-xl border border-white/5">
                 <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">Quick Directives</h3>
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    Use the native sidebar controller recorder to capture audio directly into the secure cloud stack bypassing pipeline blocks.
+                    Use the native sidebar controller recorder to capture audio directly into the secure cloud stack.
                 </p>
             </div>
         </div>
@@ -173,8 +169,8 @@ custom_cyberpunk_ui = f"""
         </div>
 
         <div class="flex-1 flex flex-col items-center justify-center overflow-hidden my-6">
-            <div id="avatarContainer" class="flex flex-col items-center justify-center {'hidden' if chat_bubbles_html else ''}">
-                <div class="w-36 h-36 rounded-full glass-panel flex items-center justify-center border border-white/10 state-idle" id="avatarRing">
+            <div id="avatarContainer" class="flex flex-col items-center justify-center {avatar_visibility}">
+                <div class="w-36 h-36 rounded-full glass-panel flex items-center justify-center border border-white/10" id="avatarRing">
                     <div class="w-28 h-28 rounded-full bg-slate-900/80 flex items-center justify-center border border-white/5 relative overflow-hidden">
                         <svg class="w-12 h-12 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
@@ -184,7 +180,7 @@ custom_cyberpunk_ui = f"""
                 <p class="text-xs text-slate-500 mt-4 tracking-widest uppercase font-semibold">Core Module Aura</p>
             </div>
 
-            <div id="conversationLog" class="w-full max-w-2xl space-y-4 overflow-y-auto max-h-full px-2 {'': 'hidden' if not chat_bubbles_html else ''}">
+            <div id="conversationLog" class="w-full max-w-2xl space-y-4 overflow-y-auto max-h-full px-2 {log_visibility}">
                 {chat_bubbles_html}
             </div>
         </div>
