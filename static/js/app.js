@@ -1,8 +1,7 @@
 let mediaRecorder;
-let audioChunks = [];
+let socket;
 let timerInterval;
 let totalSeconds = 0;
-let isRecordingLoop = false;
 
 const startBtn = document.getElementById('startBtn');
 const endBtn = document.getElementById('endBtn');
@@ -14,7 +13,7 @@ const conversationLog = document.getElementById('conversationLog');
 const avatarContainer = document.getElementById('avatarContainer');
 const timerDisplay = document.getElementById('timer');
 
-// Premium Component Aesthetics Transition Manager
+// Premium Component Aesthetics Transition Manager (UNCHANGED)
 function changeAppState(state, message) {
     statusText.innerText = message;
     statusText.className = "text-xs font-semibold uppercase tracking-wider ";
@@ -55,79 +54,55 @@ function startTimer() {
 startBtn.onclick = async () => {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-        isRecordingLoop = true;
         
-        startBtn.disabled = true;
-        startBtn.classList.add('opacity-40', 'cursor-not-allowed');
-        endBtn.disabled = false;
-        endBtn.classList.remove('opacity-40', 'cursor-not-allowed');
-        endBtn.classList.add('hover:bg-rose-500/20', 'hover:shadow-[0_0_20px_rgba(244,63,94,0.15)]');
+        // Connect to WebSocket Server
+        socket = new WebSocket(`ws://${window.location.host}/ws/stream`);
         
-        startTimer();
-        streamVoiceCapturePacket();
+        socket.onopen = () => {
+            startTimer();
+            startBtn.disabled = true;
+            startBtn.classList.add('opacity-40', 'cursor-not-allowed');
+            endBtn.disabled = false;
+            endBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+            endBtn.classList.add('hover:bg-rose-500/20', 'hover:shadow-[0_0_20px_rgba(244,63,94,0.15)]');
+            
+            // Start recording in timeslices (e.g., every 4 seconds chunks)
+            mediaRecorder = new MediaRecorder(stream);
+            changeAppState('listening', 'Monitoring Audio');
+            
+            mediaRecorder.ondataavailable = async (event) => {
+                if (event.data.size > 0 && socket.readyState === WebSocket.OPEN) {
+                    changeAppState('thinking', 'Analyzing Context');
+                    const arrayBuffer = await event.data.arrayBuffer();
+                    socket.send(arrayBuffer);
+                }
+            };
+            
+            // Record in 4-second blocks continuously
+            mediaRecorder.start(4000); 
+        };
+
+        socket.onmessage = async (event) => {
+            const data = JSON.parse(event.data);
+            pushChatBubble(data.user_text, data.ai_response);
+            
+            // Play Streamed TTS Response
+            changeAppState('speaking', 'Synthesizing Response');
+            const audioBytes = new Uint8Array(data.audio.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+            const audioBlob = new Blob([audioBytes], { type: 'audio/mp3' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            
+            audio.onended = () => {
+                changeAppState('listening', 'Monitoring Audio');
+            };
+            audio.play();
+        };
+
     } catch (err) {
         alert("Active peripheral voice capture clearance is required.");
     }
 };
-
-function streamVoiceCapturePacket() {
-    if (!isRecordingLoop) return;
-    audioChunks = [];
-    changeAppState('listening', 'Monitoring Audio');
-    mediaRecorder.start();
-
-    setTimeout(() => {
-        if (mediaRecorder.state === "recording") mediaRecorder.stop();
-    }, 4500);
-
-    mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        if (isRecordingLoop) await submitPayloadToServer(audioBlob);
-    };
-
-    mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
-}
-
-async function submitPayloadToServer(blob) {
-    changeAppState('thinking', 'Analyzing Context');
-    const formData = new FormData();
-    formData.append('file', blob);
-
-    try {
-        const response = await fetch('/process-audio', { method: 'POST', body: formData });
-        const data = await response.json();
-
-        if (response.ok) {
-            pushChatBubble(data.user_text, data.ai_response);
-            await dispatchVoiceSynthesis(data.ai_response);
-        } else {
-            streamVoiceCapturePacket();
-        }
-    } catch (err) {
-        streamVoiceCapturePacket();
-    }
-}
-
-async function dispatchVoiceSynthesis(text) {
-    changeAppState('speaking', 'Synthesizing Response');
-    const formData = new FormData();
-    formData.append('text', text);
-
-    try {
-        const response = await fetch('/tts', { method: 'POST', body: formData });
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-        
-        audio.onended = () => {
-            if (isRecordingLoop) streamVoiceCapturePacket();
-        };
-        audio.play();
-    } catch (err) {
-        streamVoiceCapturePacket();
-    }
-}
 
 function pushChatBubble(user, ai) {
     avatarContainer.classList.add('hidden');
@@ -155,9 +130,10 @@ function pushChatBubble(user, ai) {
 }
 
 endBtn.onclick = () => {
-    isRecordingLoop = false;
     clearInterval(timerInterval);
     if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+    if (socket) socket.close();
+    
     changeAppState('idle', 'Connection Terminated');
     
     startBtn.disabled = false;
