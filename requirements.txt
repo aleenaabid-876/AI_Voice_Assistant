@@ -1,4 +1,7 @@
-streamlit
-groq
+fastapi
+uvicorn
+jinja2
 python-dotenv
+groq
 gTTS
+python-multipart
