@@ -1,0 +1,72 @@
+/* Custom Variable Token Framework */
+:root {
+    --bg-main: #060a13;
+    --card-surface: rgba(13, 22, 43, 0.45);
+    --border-glow: rgba(99, 102, 241, 0.15);
+    --neon-cyan: #06b6d4;
+    --neon-indigo: #6366f1;
+    --neon-emerald: #10b981;
+    --neon-rose: #f43f5e;
+}
+
+/* Base Body Application Layer */
+body {
+    background: radial-gradient(circle at 50% 120%, #0e172e 0%, var(--bg-main) 70%);
+    color: #f8fafc;
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Glassmorphism Surface Core */
+.glass-panel {
+    background: var(--card-surface);
+    backdrop-filter: blur(16px) saturate(120%);
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    border-radius: 24px;
+}
+
+/* Dynamic State Neon Glow Engines */
+.state-idle {
+    box-shadow: 0 0 30px -5px rgba(148, 163, 184, 0.1);
+    border-color: rgba(148, 163, 184, 0.2);
+}
+
+.state-listening {
+    box-shadow: 0 0 40px -5px rgba(16, 185, 129, 0.35);
+    border-color: var(--neon-emerald) !important;
+}
+
+.state-thinking {
+    box-shadow: 0 0 40px -5px rgba(245, 158, 11, 0.35);
+    border-color: #f59e0b !important;
+}
+
+.state-speaking {
+    box-shadow: 0 0 40px -5px rgba(99, 102, 241, 0.4);
+    border-color: var(--neon-indigo) !important;
+}
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Soft Continuous Slow Spins */
+@keyframes slow-orbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.spin-slow {
+    animation: slow-orbit 12s linear infinite;
+}

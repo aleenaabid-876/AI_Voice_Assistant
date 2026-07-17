@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceAI Intelligence Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="h-screen flex p-5 space-x-5 overflow-hidden">
+
+    <div class="w-80 glass-panel p-6 flex flex-col justify-between border border-white/5">
+        <div class="space-y-6">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full">Systems v2.1</span>
+                <h1 class="text-2xl font-bold mt-3 text-slate-100">Voice Interface</h1>
+            </div>
+            <div class="space-y-3 bg-white/5 p-4 rounded-xl border border-white/5">
+                <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">Quick Directives</h3>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Initiate a connection to converse. Tap <span class="text-emerald-400 font-semibold">Start Call</span> and voice queries continuously.
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-500 border-t border-white/5 pt-4">
+            <span>Terminal State</span>
+            <span class="font-mono text-indigo-400">ONLINE</span>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col justify-between glass-panel p-8 relative border border-white/5">
+        
+        <div class="absolute top-6 left-8 flex items-center space-x-3 bg-white/5 px-4 py-2 rounded-full border border-white/5" id="statusContainer">
+            <span class="h-2.5 w-2.5 rounded-full bg-slate-500 transition-all duration-300 shadow-[0_0_10px_rgba(255,255,255,0.2)]" id="statusDot"></span>
+            <span id="statusText" class="text-xs font-semibold uppercase tracking-wider text-slate-400">Ready</span>
+        </div>
+
+        <div class="flex-1 flex flex-col items-center justify-center overflow-hidden my-6">
+            
+            <div id="avatarContainer" class="flex flex-col items-center justify-center transition-all duration-500">
+                <div class="w-36 h-36 rounded-full glass-panel flex items-center justify-center border border-white/10 state-idle transition-all duration-500 ease-out" id="avatarRing">
+                    <div class="w-28 h-28 rounded-full bg-slate-900/80 flex items-center justify-center border border-white/5 relative overflow-hidden group">
+                        <svg class="w-12 h-12 text-indigo-400 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 mt-4 tracking-widest uppercase font-semibold animate-pulse">Core Module Aura</p>
+            </div>
+
+            <div id="conversationLog" class="w-full max-w-2xl space-y-4 overflow-y-auto max-h-full px-2 hidden"></div>
+        </div>
+
+        <div class="border-t border-white/5 pt-6 flex justify-between items-center">
+            <div class="bg-white/5 px-4 py-2 rounded-xl border border-white/5">
+                <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Session Frame Time</p>
+                <p class="text-lg font-mono font-bold text-slate-200" id="timer">00:00:00</p>
+            </div>
+
+            <div class="flex space-x-3">
+                <button id="startBtn" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] transform active:scale-95">
+                    Start Call
+                </button>
+                <button id="endBtn" disabled class="bg-rose-500/10 text-rose-400 border border-rose-500/20 px-6 py-3 rounded-xl font-semibold text-sm opacity-40 cursor-not-allowed transition-all duration-200 transform active:scale-95">
+                    End Call
+                </button>
+                <button id="resetBtn" class="bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 transform active:scale-95">
+                    Clear Workspace
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
