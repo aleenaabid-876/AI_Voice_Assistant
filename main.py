@@ -12,10 +12,18 @@ st.set_page_config(page_title="AI Voice Agent", page_icon="🎙️")
 st.title("🎙️ AI Voice Assistant")
 st.write("Record or upload your audio to talk with the AI Voice Agent.")
 
-api_key = st.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
+# 🛠️ Secrets bypass block
+api_key = None
+try:
+    # Pehle koshish karein secrets se uthane ki
+    api_key = st.secrets["GROQ_API_KEY"]
+except Exception:
+    # Agar error aaye toh local environment variable check karein
+    api_key = os.getenv("GROQ_API_KEY")
+
+# Agar dono jagah na mile toh yahan direct apni key paste kar dein fallback ke liye
 if not api_key:
-    st.error("Please configure your GROQ_API_KEY in Streamlit Secrets or .env file.")
-    st.stop()
+    api_key = "gsk_yahan_apni_asli_groq_key_paste_karein"  # <--- Agar phir bhi error aaye toh apni key direct yahan quotes mein likh dein
 
 groq_client = Groq(api_key=api_key)
 
