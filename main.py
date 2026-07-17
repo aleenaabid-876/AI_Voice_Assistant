@@ -8,7 +8,7 @@ from gtts import gTTS
 # 1. Page Configuration (Full screen cyberpunk view)
 st.set_page_config(page_title="VoiceAI Dashboard", layout="wide", initial_sidebar_state="collapsed")
 
-# 2. Hide Streamlit Elements (Taake default header/footer aapke design ko kharab na karein)
+# 2. Hide Streamlit Elements (Sahi argument ke sath taake error na aaye)
 st.markdown("""
     <style>
         #MainMenu {visibility: hidden;}
@@ -17,14 +17,13 @@ st.markdown("""
         .block-container {padding: 0px !important;}
         iframe {display: block; width: 100vw; height: 100vh; border: none;}
     </style>
-""", unsafe_gradient=True)
+""", unsafe_allow_html=True)
 
 # 3. Streamlit Cloud Key Setup
 api_key = os.getenv("GROQ_API_KEY") or st.secrets.get("GROQ_API_KEY")
 groq_client = Groq(api_key=api_key)
 
 # 4. Streamlit Queries & Custom Backend Routing
-# Is logic se hum JavaScript ke fetches ko direct isi file par handle kar rahe hain
 if "action" in st.query_params:
     action = st.query_params["action"]
     
@@ -36,7 +35,7 @@ if "action" in st.query_params:
                 audio_io = io.BytesIO(audio_bytes)
                 audio_io.name = "input.webm"
                 
-                # Speech-to-Text
+                # Speech-to-Text via Groq Whisper
                 transcription = groq_client.audio.transcriptions.create(
                     file=audio_io,
                     model="whisper-large-v3",
@@ -48,7 +47,7 @@ if "action" in st.query_params:
                     st.json({"error": "Empty transcription"})
                     st.stop()
                     
-                # LLM Brain
+                # LLM Brain via Llama 3.1
                 completion = groq_client.chat.completions.create(
                     model="llama-3.1-8b-instant",
                     messages=[
@@ -80,7 +79,7 @@ if "action" in st.query_params:
             st.stop()
 
 # ----------------------------------------------------
-# 5. ASLI INTERFACE COMPILATION (HTML + CSS + JS)
+# 5. AAPKA ASLI PREMIUM CYBERPUNK INTERFACE (HTML + CSS + JS)
 # ----------------------------------------------------
 
 custom_cyberpunk_ui = """
@@ -158,7 +157,7 @@ custom_cyberpunk_ui = """
 </head>
 <body class="flex p-5 space-x-5">
 
-    <!-- LEFT BAR -->
+    <!-- LEFT DIRECTIVES PANEL -->
     <div class="w-80 glass-panel p-6 flex flex-col justify-between border border-white/5">
         <div class="space-y-6">
             <div>
@@ -178,14 +177,16 @@ custom_cyberpunk_ui = """
         </div>
     </div>
 
-    <!-- MAIN DISPLAY SCREEN -->
+    <!-- MAIN DISPLAY DASHBOARD -->
     <div class="flex-1 flex flex-col justify-between glass-panel p-8 relative border border-white/5">
         
+        <!-- STATUS INDICATOR DOT & TEXT -->
         <div class="absolute top-6 left-8 flex items-center space-x-3 bg-white/5 px-4 py-2 rounded-full border border-white/5" id="statusContainer">
             <span class="h-2.5 w-2.5 rounded-full bg-slate-500 transition-all duration-300 shadow-[0_0_10px_rgba(255,255,255,0.2)]" id="statusDot"></span>
             <span id="statusText" class="text-xs font-semibold uppercase tracking-wider text-slate-400">Ready</span>
         </div>
 
+        <!-- CORE INTERFACE LOG/AVATAR -->
         <div class="flex-1 flex flex-col items-center justify-center overflow-hidden my-6">
             <div id="avatarContainer" class="flex flex-col items-center justify-center transition-all duration-500">
                 <div class="w-36 h-36 rounded-full glass-panel flex items-center justify-center border border-white/10 state-idle transition-all duration-500 ease-out" id="avatarRing">
@@ -201,7 +202,7 @@ custom_cyberpunk_ui = """
             <div id="conversationLog" class="w-full max-w-2xl space-y-4 overflow-y-auto max-h-full px-2 hidden"></div>
         </div>
 
-        <!-- LOWER DASHBOARD ACTIONS -->
+        <!-- LOWER DASHBOARD TIMERS AND ACTIONS -->
         <div class="border-t border-white/5 pt-6 flex justify-between items-center">
             <div class="bg-white/5 px-4 py-2 rounded-xl border border-white/5">
                 <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Session Frame Time</p>
@@ -222,7 +223,7 @@ custom_cyberpunk_ui = """
         </div>
     </div>
 
-    <!-- AUDIO ENGINE INTERPOLATION LAYER -->
+    <!-- AUDIO CORE ENGINE LOGIC -->
     <script>
         let mediaRecorder;
         let audioChunks = [];
@@ -320,7 +321,6 @@ custom_cyberpunk_ui = """
             formData.append('file', blob);
 
             try {
-                // Streamlit routing URL endpoints interpolation
                 const response = await fetch('/?action=process-audio', { method: 'POST', body: formData });
                 const data = await response.json();
 
@@ -395,5 +395,5 @@ custom_cyberpunk_ui = """
 </html>
 """
 
-# 6. Injection Layer (Embedding Custom Premium Framework into Streamlit Structure)
+# 6. Injection Layer (Embedding Custom Premium UI safely into Streamlit)
 st.components.v1.html(custom_cyberpunk_ui, height=900, scrolling=False)
